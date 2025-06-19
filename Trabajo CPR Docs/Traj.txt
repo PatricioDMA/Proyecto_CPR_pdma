@@ -1,0 +1,22 @@
+Documento con los pasos para lanzar la generación de trayectoria.
+
+Creación en Setup.txt
+Empezar por la simulación (Sim.txt)
+
+Modificar trayectoria: /trajectory_agent/trajectory_agent/trajectory_node.py
+	cd ~/sim_ws
+	colcon build
+	source install/setup.bash
+
+Lanzar nodo:
+	ros2 run trajectory_agent trajectory_node
+
+NOTA: Cargar configuración de rviz2 (en ~/cpr_ws/sim_ws/src/f1tenth_gym_ros/launch)
+
+Verificar publicación:
+	ros2 topic echo /planned_trajectory
+	
+Añadidos a configuración de rviz2: 
+	Path /planned_trajectory
+	
+

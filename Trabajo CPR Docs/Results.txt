@@ -1,0 +1,88 @@
+Documento con los resultados de simulaciones de cada configuración
+
+Lanzamiento con master_launch.launch.py: 
+	ros2 launch pure_pursuit_controller master_launch.launch.py use_noisy_odom:=false use_drive_raw:=false use_latency:=false
+	Argumentos:
+		- use_noisy_odom (default=false): Inyectar error en odometría
+		- use_drive_raw (default=false): Inyectar error sistemático en el ángulo de dirección
+		- use_latency (default=false): Emular latencia alta mediante resolución temporal del controlador
+		
+Representación individual de resultados: analizar_resultados.py
+	- Entrada: un solo fichero results_*.csv en su directorio
+	- Salida: dos gráficas .png
+	
+Comparación gráfica entre métodos: comparar_resultados.py
+	- Entrada: exactamente 4 ficheros results_*.csv en su directorio con formato (orden alfabético):
+		results_1_no_errors.csv
+		results_2_odom_noisy.csv
+		results_3_steering_bias.csv
+		results_4_latency.csv
+	- Salida: una gráfica .png
+
+A) CONFIGURACIÓN SIN ERRORES
+Nodo de odometría: /ego_racecar/odom
+Nodo de control: /drive
+Frecuencia del controlador: 20 Hz
+
+Intento 1:
+- Trayectoria completada en 31.40 segundos
+- Error de seguimiento (RMSE): 0.092 metros
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_sinerrores.csv
+- Número de obstáculos encontrados: 1
+- Fallo de finalización: False
+
+B) CONFIGURACIÓN CON RUIDO EN ODOMETRÍA
+Nodo de odometría: /ego_racecar/odom_noisy
+Nodo de control: /drive
+Frecuencia del controlador: 20 Hz
+
+Intento 1:
+- Trayectoria completada en 31.50 segundos
+- Error de seguimiento (RMSE): 0.104 metros
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_noisyodom.csv 
+- Número de obstáculos encontrados: 2                                                                                                
+- Fallo de finalización: False
+
+Intento 2:
+- Trayectoria completada en 31.40 segundos
+- Error de seguimiento (RMSE): 0.110 metros
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_noisyodom.csv (sobreescrito)
+- Número de obstáculos encontrados: 1                                                                                                
+- Fallo de finalización: False
+
+C) CONFIGURACIÓN CON STEERING BIAS
+Nodo de odometría: /ego_racecar/odom
+Nodo de control: /drive_raw
+Frecuencia del controlador: 20 Hz
+
+Intento 1:
+- Trayectoria completada en 31.90 segundos                                                                                           
+- Error de seguimiento (RMSE): 0.308 metros                                                                                          
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_steeringbias.csv                                   
+- Número de obstáculos encontrados: 7                                                                                                
+- Fallo de finalización: False 
+
+D) CONFIGURACIÓN CON LATENCIA
+Nodo de odometría: /ego_racecar/odom
+Nodo de control: /drive
+Frecuencia del controlador: 5 Hz
+
+Intento 1:
+- Trayectoria completada en 31.40 segundos                                                                                           
+- Error de seguimiento (RMSE): 0.084 metros                                                                                          
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_latency.csv                                   
+- Número de obstáculos encontrados: 1                                                                                                
+- Fallo de finalización: False 
+
+E) CONFIGURACIÓN REALISTA (PEOR CASO)
+Nodo de odometría: /ego_racecar/odom_noisy
+Nodo de control: /drive_raw
+Frecuencia del controlador: 5 Hz
+
+Intento 1:
+- Trayectoria completada en 33.60 segundos                                                                                           
+- Error de seguimiento (RMSE): 0.315 metros                                                                                          
+- Resultados guardados en: /sim_ws/src/pure_pursuit_controller/results/results_worstcase.csv                                   
+- Número de obstáculos encontrados: 7                                                                                                
+- Fallo de finalización: False 
+

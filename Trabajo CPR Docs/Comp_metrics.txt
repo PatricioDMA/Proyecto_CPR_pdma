@@ -1,0 +1,14 @@
+Documento con las métricas utilizadas para evaluar el desempeño del controlador bajo diferentes pruebas
+
+Métricas de desempeño clave:
+	Tiempo total [seg]: Tiempo que tarda el robot en completar la trayectoria.
+	Error de seguimiento [m]: Desviación media entre el robot y la trayectoria deseada.
+	Número de colisiones: Cuántas veces colisiona con un obstáculo o pared.
+	Fallo de finalización [true/false]: Si no completa la trayectoria (por atasco, desvío excesivo, seguimiento subóptimo, etc.)
+	
+Setup gráficas:
+	- Directorio de resultados: /sim_ws/src/pure_pursuit_controller/results
+	- Ficheros de resultados en formato .csv: |t_elapsed | rmse_partial|
+	- Script de gráficas: analizar_resultados.py, comparar_resultados.py
+	- Dependencias (necesario cada vez que se cierra el docker): pip install matplotlib
+

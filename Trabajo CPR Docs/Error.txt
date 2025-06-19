@@ -1,0 +1,86 @@
+Documento con la creación e implementación inicial de errores de modelado.
+
+1. RUIDO EN LA ODOMETRÍA
+Añadir ruido gaussiano a la odometría para simular errores de percepción.
+
+Nuevo paquete: odom_modifiers
+Nuevo nodo: odom_noisy
+Scripts relacionadas: odom_modifiers/noisy_odom_publisher.py, setup.py, pure_pursuit_controller/pure_pursuit_node.py
+
+En pure_pursuit_node.py, (des/)comentar las líneas:
+	# self.create_subscription(Odometry, '/ego_racecar/odom', self.odom_callback, 10) # Sin ruido gaussiano en odometría
+        self.create_subscription(Odometry, '/ego_racecar/odom_noisy', self.odom_callback, 10) # Con ruido gaussiano en odometría
+
+Simulación completa (trayectoria + control + error en odometría): (Recordar comentar/descomentar las líneas pertinentes a cada error)
+	Terminal 1: Simulador
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+		
+	Terminal 2: Generador de trayectorias:
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run trajectory_agent trajectory_node
+		
+	Terminal 3: Odometría ruidosa
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run odom_modifiers noisy_odom_publisher
+		
+	Terminal 4: Control Pure Pursuit
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run pure_pursuit_controller pure_pursuit_node
+
+2. ERROR SISTEMÁTICO EN EL ÁNGULO DE DIRECCIÓN
+Robot con dirección calibrada incorrectamente (offset)
+
+2 partes: 
+	A) Modificar el controlador (des/)comentando nodo publicado
+	B) Crear nodo en odom_modifiers
+	
+A) Modificar el controlador
+	Nuevo tópico publicado: /drive_raw
+	En código pure_pursuit_controller/pure_pursuit_node.py, (des/)comentar:
+		def __init__(self):
+				...
+				# OPCIÓN A: Publicar directamente al controlador (sin errores)
+				# self.drive_pub = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+				# OPCIÓN B: Publicar al nodo inyectador de errores (con ruido/sesgo/latencia)
+				self.drive_pub = self.create_publisher(AckermannDriveStamped, '/drive_raw', 10)
+				...
+        
+B) Crear nodo en odom_modifiers (Setup.txt)
+	Nuevo tópico suscrito: /drive_raw
+	Tópico publicado: /drive	
+	2 Modos:
+	A) Sólo lanzar nodo de control
+	B) Lanzar nodo de control y nodo de inyección de error sistemático en el ángulo de dirección
+	
+Simulación completa (trayectoria + control + sesgo en dirección): (Recordar comentar/descomentar las líneas pertinentes a cada error)
+	Terminal 1: Simulador
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+		
+	Terminal 2: Generador de trayectorias:
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run trajectory_agent trajectory_node
+	
+	Terminal 3: Control Pure Pursuit
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run pure_pursuit_controller pure_pursuit_node
+		
+	Terminal 4: Ruido sistemático en ángulo de dirección
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run odom_modifiers steering_bias_node
+
+3. FALLOS EN EL SEGUIMIENTO DEL CAMINO
+Resolución temporal baja para simular latencia
+
+Cambiar la frecuencia del control_loop en pure_pursuit_controller/pure_pursuit_node.py:
+	def __init__(self):
+		...
+		# Modo normal: 
+		# self.timer = self.create_timer(0.05, self.control_loop) # 20 Hz
+
+		# Modo con latencia:
+		self.timer = self.create_timer(0.2, self.control_loop) # 5 Hz
+		...
+		
+

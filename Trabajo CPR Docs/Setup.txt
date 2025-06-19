@@ -1,0 +1,86 @@
+Documento con la configuración necesaria para comenzar a trabajar y procesos que sólo deberán realizarse una vez.
+
+Repositorios:
+https://github.com/f1tenth/f1tenth_gym_ros.git
+https://github.com/osrf/rocker.git
+
+Configuración:
+- Prerrequisitos: nvidia-container-toolkit, docker, rocker y nvidia-docker2 
+- Añadir runtime nvidia al archivo de configuración de Docker:
+	sudo nano /etc/docker/daemon.json
+	Pegar (si vacío):
+	{
+	  "runtimes": {
+	    "nvidia": {
+	      "path": "nvidia-container-runtime",
+	      "runtimeArgs": []
+	    }
+	  }
+	}
+	sudo systemctl restart docker
+	docker info | grep -i nvidia
+	docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+
+- Crear entorno virtual con dependencias adecuadas dentro del repositorio:
+	cd ~/cpr_ws/sim_ws/src/f1tenth_gym_ros
+	python3 -m venv venv
+	source venv/bin/activate
+	pip install "pip<24.1"
+	pip install jinja2 typeguard
+	pip install -e .
+
+- Operar el entorno virtual:
+	Para entrar: source ~/cpr_ws/sim_ws/src/f1tenth_gym_ros/venv/bin/activate 
+	Para salir: deactivate 
+
+- Construir el docker:
+	Haber clonado repositorio: git clone https://github.com/f1tenth/f1tenth_gym_ros.git
+	cd f1tenth_gym_ros
+	docker build -t f1tenth_gym_ros -f Dockerfile .
+	
+- Correr el docker: (NOTA: expandir el volumen compartido a /sim_ws/src/)
+	rocker --nvidia --x11 --volume ./src:/sim_ws/src -- f1tenth_gym_ros
+	
+- Lanzar simulación:
+	(opcional) tmux
+	cd ..
+	source /opt/ros/foxy/setup.bash
+	cd sim_ws
+	source install/local_setup.bash
+	ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+	
+Crear paquete de generador de trayectoria:
+	cd /sim_ws/src
+	ros2 pkg create --build-type ament_python trajectory_agent --dependencies rclpy std_msgs geometry_msgs nav_msgs
+	
+Dar permisos a paquetes creados: (desde host local)
+	sudo chown -R $USER:$USER ~/cpr_ws/sim_ws/src
+	
+Crear nodo de generación de trayectoria:
+	cd trajectory_agent/trajectory_agent
+	touch trajectory_node.py
+	chmod +x trajectory_node.py
+	
+Crear paquete de control de persecución pura:
+	cd /sim_ws/src
+	ros2 pkg create --build-type ament_python pure_pursuit_controller
+	(desde host local) sudo chown -R $USER:$USER ~/cpr_ws/sim_ws/src
+	
+Crear nodo de control de persecución pura:
+	touch pure_pursuit_controller/pure_pursuit_node.py
+	chmod +x pure_pursuit_controller/pure_pursuit_node.py
+
+Crear paquete de inyección de errores:
+	cd /sim_ws/src
+	ros2 pkg create odom_modifiers --build-type ament_python --dependencies rclpy nav_msgs
+	(desde host local) sudo chown -R $USER:$USER ~/cpr_ws/sim_ws/src
+
+Crear nodo de inyección de errores en odometría:
+	cd odom_modifiers/odom_modifiers
+	touch noisy_odom_publisher.py
+	
+Crear nodo de inyección de error sistemático en el ángulo de dirección:
+	cd odom_modifiers/odom_modifiers
+	touch steering_bias_node.py
+	
+

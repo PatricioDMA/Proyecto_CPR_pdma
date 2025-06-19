@@ -1,0 +1,50 @@
+Esquema de mejora de sistema base
+
+Plan general de evolución del sistema
+
+1. Mejorar el entorno y trayectorias
+
+1.1. Sustituir trayectoria circular por una generada desde el mapa	PRIORIDAD ALTA => HECHO
+ Cambiar clase generate_trajectory de trajectory_nod.py
+
+1.2. Añadir obstáculos en el mapa	PRIORIDAD BAJA
+
+ Usa rviz2 o edita el mundo de simulación para incluir conos, muros u otros obstáculos.
+
+2. Mejorar el controlador (Pure Pursuit → evasión inteligente)
+
+2.1. Añadir un mecanismo de evasión reactiva	PRIORIDAD ALTA => HECHO
+ Usa un sensor simulado (por ejemplo /scan, un LaserScan) para detectar obstáculos cercanos.
+
+ Si hay un obstáculo dentro del radio de seguridad, ajusta temporalmente el punto de lookahead para esquivarlo.
+
+ Esto se puede hacer de forma muy simple (basado en un "ángulo libre" o distancia mínima).
+
+2.2. Mejorar el modelo de control	PRIORIDAD MEDIA => HECHO
+ Añade control de velocidad en función de la curvatura (curvas lentas, rectas rápidas).
+ 
+3. Sistema de pruebas con diferentes errores	PRIORIDAD ALTA => HECHO
+3.1. Crear varios escenarios de prueba:
+	- Sin errores.
+	- Con ruido gaussiano.
+	- Con sesgo de dirección.
+	- Con latencia.
+
+3.2. Mide el desempeño del controlador (tiempo de recorrido, error de seguimiento, fallos de colisión).	PRIORIDAD ALTA => HECHO (MEJORABLE)
+
+4. Automatización y lanzadores
+4.1. Unifica lanzadores		PRIORIDAD MEDIA => HECHO
+ Crea un .launch.py maestro que pueda lanzar:
+	- Simulador.
+	- Nodo de trayectoria.
+	- Nodo de control.
+	- Nodo de odometría modificada (condicional).
+	- RViz con configuración adecuada.
+
+ Usar argumentos para activar/desactivar errores o modos de simulación.
+ 
+4.2. Guarda logs y métricas		PRIORIDAD BAJA => HECHO
+ Usa ros2 bag o tópicos como /error_metrics, /path_tracking_error para guardar datos.
+ Automatiza la evaluación con scripts de análisis (Python + matplotlib o pandas).
+ 
+ 

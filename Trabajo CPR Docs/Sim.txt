@@ -1,0 +1,63 @@
+Documento con los pasos para iniciar la simulación y teleoperación.
+
+Abrir el docker:
+	cd ~/cpr_ws/sim_ws/src/f1tenth_gym_ros
+	source venv/bin/activate
+	cd ../..
+	rocker --nvidia --x11 --volume ./src:/sim_ws/src -- f1tenth_gym_ros
+	
+	(Condensado) cd ~/cpr_ws/sim_ws/src/f1tenth_gym_ros && source venv/bin/activate && cd ../.. && rocker --nvidia --x11 --volume ./src:/sim_ws/src -- f1tenth_gym_ros
+	
+Abrir y operar tmux en el docker:
+	tmux
+	ctrl+B " (split vertical)
+	ctrl+B % (split horizontal)
+	ctrl+b [ (entrar modo copia)
+	q (salir modo copia)
+		
+Setup de cada instancia del docker: 
+	cd ..
+	source /opt/ros/foxy/setup.bash
+	cd sim_ws
+	colcon build (sólo primera vez)
+	Si no usas paquetes de trayectoria/control: source install/local_setup.bash
+	Si usas paquetes de trayectoria/control: source install/setup.bash
+	
+	(Condensado) cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+	
+Lanzar simulación con rviz:
+	ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+	
+Cargar configuración de rviz2:
+	File -> Open Config (Ctrl+O)
+	~/cpr_ws/sim_ws/src/f1tenth_gym_ros/launch
+	gym_bridge_pp.rviz
+	
+Lanzar teleoperación:
+	ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+Ver lista de tópicos:
+	ros2 topic list
+		/clicked_point
+		/clock
+		/cmd_vel
+		/drive
+		/ego_racecar/odom
+		/ego_robot_description
+		/goal_pose
+		/initialpose
+		/joint_states
+		/map
+		/map_server/transition_event
+		/map_updates
+		/parameter_events
+		/rosout
+		/scan
+		/tf
+		/tf_static
+		
+Versiones:
+	sim_ws_backup1: Workspace base con paquetes y nodos básicos creados
+	sim_ws_backup2: Workspace completo con todas las mejoras realizadas MENOS UNIFICACIÓN DE LANZADORES
+	sim_ws_backup_final: Workspace completo con unificación de lanzadores y gráficas
+	

@@ -1,0 +1,27 @@
+Información de los tópicos de la simulación por f1tenth.
+
+Estructura:
+Tópico	|Tipo de mensaje	|Uso principal
+
+Tópicos importantes (mínimos necesarios):
+/scan			|sensor_msgs/LaserScan			|Percepción: datos del LIDAR
+/ego_racecar/odom	|nav_msgs/Odometry			|Odometría (posición y velocidad) del ego car
+/drive			|ackermann_msgs/AckermannDriveStamped	|Comandos de velocidad y dirección (salida del controlador)
+/map			|nav_msgs/OccupancyGrid			|Mapa del entorno (si usas planificación)
+/tf / /tf_static	|tf2_msgs/TFMessage			|Transformaciones de frames
+
+Tópicos útiles para pruebas y debugging:
+/clock: Simulación de tiempo (usado internamente)
+/joint_states: Estados de las ruedas (mock, en este caso)
+/clicked_point: Selección de punto en RViz (debug o navegación)
+/initialpose: Para reiniciar la pose desde RViz (NO publicar aquí manualmente)
+/goal_pose: Similar, pero solo si usas 2 agentes
+/parameter_events: Eventos de parámetros ROS 2 (internos)
+/rosout: Salida de logs
+/map_updates: Cambios incrementales del mapa (si estás mapeando)
+
+Tópicos que se pueden ignorar si solo estás usando un agente y no estás haciendo competición entre dos coches:
+/opp_scan, /opp_drive, etc.: Solo aparecen en modo 2 agentes
+/ego_racecar/opp_odom: Solo en simulación de planificación adversarial
+/opp_racecar/odom, etc.: Solo en simulación de planificación adversarial
+/map_server/transition_event: Interno del lifecycle de ROS 2

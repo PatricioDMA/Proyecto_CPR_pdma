@@ -1,0 +1,55 @@
+Documento con los pasos para lanzar el control.
+
+Creación en Setup.txt
+Empezar por simulación (Sim.txt) y trayectoria (Traj.txt) ene se orden.
+
+Modificar control: /pure_pursuit_controller/pure_pursuit_controller/pure_pursuit_node.py
+	cd ~/sim_ws
+	colcon build
+	source install/setup.bash
+	
+Lanzar nodo:
+	ros2 run pure_pursuit_controller pure_pursuit_node
+	
+Añadidos a configuración de rviz2: 
+	Marker /lookahead_line
+	Pose /lookahead_point
+	
+Simulación completa (trayectoria + control):
+	Terminal 1: Simulador
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+		
+	Terminal 2: Generador de trayectorias:
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run trajectory_agent trajectory_node
+		
+	Terminal 3: Control Pure Pursuit
+		cd .. && source /opt/ros/foxy/setup.bash && cd sim_ws && source install/setup.bash
+		ros2 run pure_pursuit_controller pure_pursuit_node
+
+Versiones: (para cada versión se pondrá lo que se añade sobre las anteriores)
+	sim_ws_backup: sólo pure pursuit
+	Pure_Pursuit_versions:
+		pure_pursuit_node1.py: Detección de obstáculos y parada
+		pure_pursuit_node2.py: Detección de obstáculos y evasión por los lados  (parada si no es posible)
+		pure_pursuit_node3.py: 
+			- Reconocimiento de trayectorias repetidas
+			- Control adaptativo para fin de trayectoria
+			- Tiempo en completar trayectoria
+		pure_pursuit_node4.py: Error de seguimiento medio
+		pure_pursuit_node5.py:
+			- Contador de obstáculos/colisiones
+			- Detecciión de fallo de finalización temporizada
+		pure_pursuit_node6.py: Creación de archivo de resultados
+		pure_pursuit_node7.py: Mejora de control (wheelbase)
+
+Parámetros de ajuste/fine tuning:
+	self.lookahead_distance: Distancia del punto objetivo (Pure Pursuit)
+	self.min_obstacle_distance: Distancia mínima para considerar algo un obstáculo (Detección de obstáculos)
+	self.lidar_front_angles: Distancia mínima para considerar algo un obstáculo (Detección de obstáculos)
+	angle_to_index(...) en rangos de detección y evasión de obstáculos
+	desvío de steering_angle en control_loop: Ángulo de dirección al esquivar obstáculos
+	drive_msg.drive.speed en evasión: Velocidad al esquivar (más baja que la nominal)
+	wheelbase: distancia entre ejes del modelo (ver en repositorio base f1tenth_simulator/racecar.xacro)
+	
