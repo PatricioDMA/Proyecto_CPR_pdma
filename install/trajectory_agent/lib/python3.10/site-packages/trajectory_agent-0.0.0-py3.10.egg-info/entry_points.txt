@@ -1,0 +1,3 @@
+[console_scripts]
+trajectory_agent_node = trajectory_agent.trajectory_node:main
+
